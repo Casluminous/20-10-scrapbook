@@ -1747,6 +1747,22 @@ button { -webkit-tap-highlight-color: transparent; }
   line-height: 1.7;
   color: var(--ink-3);
 }
+.wish-wall-wrap:has(.wish-wall.is-empty) { min-height: 0; }
+.wish-wall.is-empty {
+  display: grid;
+  place-items: center;
+  min-height: 170px;
+}
+.wish-wall-empty {
+  margin: 24px;
+  white-space: pre-line;
+  text-align: center;
+  font-size: 23px;
+  line-height: 1.5;
+  color: var(--ink-3);
+  opacity: .75;
+  transform: rotate(-2deg);
+}
 .wall-more { display: none; }
 
 /* =========================================================

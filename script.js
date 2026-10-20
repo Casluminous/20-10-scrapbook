@@ -393,6 +393,13 @@
 
     const all = userNotes.slice(0, POSITIONS.length);
     wishWall.innerHTML = '';
+    wishWall.classList.toggle('is-empty', all.length === 0);
+    if (!all.length) {
+      const empty = document.createElement('p');
+      empty.className = 'wish-wall-empty hand';
+      empty.textContent = 'Một góc giấy còn trống.\nGhim lời đầu tiên nhé.';
+      wishWall.appendChild(empty);
+    }
 
     all.forEach((note, i) => {
       const spot = POSITIONS[i];
