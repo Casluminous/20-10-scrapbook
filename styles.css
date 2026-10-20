@@ -749,6 +749,7 @@ button { -webkit-tap-highlight-color: transparent; }
 .btn:hover svg { transform: translateX(3px); }
 .btn:active { transform: translateY(0); }
 .btn:focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; }
+.btn:disabled { opacity: .6; cursor: wait; transform: none; }
 
 .btn-ghost {
   border: 0;
@@ -1700,6 +1701,51 @@ button { -webkit-tap-highlight-color: transparent; }
   font-size: 17px;
   color: var(--ink-3);
   opacity: .8;
+}
+.wish-note__time {
+  display: block;
+  margin-top: 6px;
+  font-family: var(--mono);
+  font-size: 7px;
+  color: var(--ink-3);
+  opacity: .8;
+}
+.wish-note__text {
+  display: block;
+  max-height: 5.08em;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  -webkit-line-clamp: unset;
+}
+.wish-wall-controls {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px 12px;
+  margin-top: 10px;
+  font-family: var(--mono);
+  font-size: 9px;
+  color: var(--ink-3);
+}
+.wish-wall-controls__button {
+  padding: 8px 0;
+  border: 0;
+  border-bottom: 1px solid currentColor;
+  background: transparent;
+  font-family: inherit;
+  font-size: inherit;
+  cursor: pointer;
+  color: var(--olive-deep);
+}
+.wish-wall-controls__button:hover:not(:disabled) { color: var(--rust); }
+.wish-wall-controls__button:disabled { opacity: .35; cursor: default; }
+.wish-wall-controls__button:focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; }
+.wish-wall-status {
+  margin: 7px 0 0;
+  font-family: var(--mono);
+  font-size: 8px;
+  line-height: 1.7;
+  color: var(--ink-3);
 }
 .wall-more { display: none; }
 

@@ -317,26 +317,18 @@
   /* ---------------------------------------------------------
      Wish wall
      --------------------------------------------------------- */
-  const STORAGE_KEY = 'vietnamese-womens-day-wishes-v1';
-  const MAX_USER_NOTES = 5;
   const wishForm = $('#wishForm');
   const wishName = $('#wishName');
   const wishText = $('#wishText');
   const wishCount = $('#wishCount');
   const wishHint = $('#wishHint');
   const wishWall = $('#wishWall');
-
-  const SAMPLES = [
-    { name: 'Gửi mẹ', text: 'Con biết mẹ mệt. Con chỉ mong mẹ nói ra.' },
-    { name: 'Gửi em', text: 'Cứ sống như em muốn. Chị vẫn ở đây.' },
-    { name: 'Gửi chính mình', text: 'Hôm nay, mình được ưu tiên mình một chút.' },
-    { name: 'Gửi bạn', text: 'Cảm ơn vì đã dịu dàng với thế giới này.' },
-    { name: 'Gửi bà', text: 'Cháu nhớ mùi trầu, tiếng quạt, và cả mùa hè đó.' },
-    { name: 'Gửi chị', text: 'Chị đã gánh giúp em nhiều thứ mà em chưa kịp cảm ơn.' },
-    { name: 'Gửi cô', text: 'Cô dạy em đọc chữ, và cả cách tử tế.' },
-    { name: 'Gửi đồng nghiệp', text: 'Cảm ơn vì những ngày bạn đã đỡ giúp mình.' },
-    { name: 'Gửi người xa', text: 'Mong nơi ấy có người nhớ mình vào tháng Mười.' }
-  ];
+  const wishNewer = $('#wishNewer');
+  const wishOlder = $('#wishOlder');
+  const wishRefresh = $('#wishRefresh');
+  const wishPageInfo = $('#wishPageInfo');
+  const wishWallStatus = $('#wishWallStatus');
+  const wishSubmit = wishForm?.querySelector('[type="submit"]');
 
   const POSITIONS = [
     { x: '1%', y: '0%', r: -3, bg: '#f3e3b3' },
@@ -350,51 +342,62 @@
     { x: '66%', y: '64%', r: -2.5, bg: '#f6ecd6' }
   ];
 
-  let userNotes = loadNotes();
-  let lastSubmitAt = 0;
+  let userNotes = [];
+  let wallPage = 0;
+  let wallHasOlder = false;
+  let wallLoading = false;
+  let wallRequest = 0;
+  let submitting = false;
+  let pendingNote = null;
   let hintTimer = 0;
-  const defaultHint = 'Lời nhắn được lưu trên trình duyệt của bạn. Tường giữ 5 lời mới nhất.';
+  const defaultHint = 'Lời nhắn được lưu trực tuyến và hiển thị công khai cho mọi người.';
 
-  function loadNotes() {
-    try {
-      const raw = localStorage.getItem(STORAGE_KEY);
-      if (!raw) return [];
-      const parsed = JSON.parse(raw);
-      if (!Array.isArray(parsed)) return [];
-      return parsed
-        .filter((note) => note && typeof note.name === 'string' && typeof note.text === 'string')
-        .map((note) => ({
-          name: note.name.slice(0, 24).trim(),
-          text: note.text.slice(0, 140).trim()
-        }))
-        .filter((note) => note.text.length > 0)
-        .slice(-MAX_USER_NOTES);
-    } catch (err) {
-      console.warn('Không đọc được tường lời chúc đã lưu.', err);
-      return [];
-    }
+  function updateWallControls() {
+    wishNewer.disabled = wallLoading || wallPage === 0;
+    wishOlder.disabled = wallLoading || !wallHasOlder;
+    wishRefresh.disabled = wallLoading;
+    wishPageInfo.textContent = `Trang ${wallPage + 1}`;
+    wishWall.setAttribute('aria-busy', String(wallLoading));
   }
 
-  function saveNotes() {
+  async function loadWall(page = 0, isFresh = false) {
+    const requestId = ++wallRequest;
+    wallLoading = true;
+    wishWallStatus.textContent = 'Đang tải lời nhắn…';
+    updateWallControls();
     try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(userNotes));
-      return true;
-    } catch (err) {
-      console.warn('Không lưu được tường lời chúc.', err);
-      return false;
+      const result = await window.WishesAPI.list(page, POSITIONS.length);
+      if (requestId !== wallRequest) return;
+      // A previously full page can become empty after owner moderation.
+      if (!result.notes.length && page > 0) return loadWall(page - 1);
+      userNotes = result.notes;
+      wallPage = page;
+      wallHasOlder = result.hasOlder;
+      renderWall(isFresh);
+      wishWallStatus.textContent = userNotes.length
+        ? 'Lời nhắn chung của mọi người. Nhấn Làm mới để xem lời vừa gửi.'
+        : 'Chưa có lời nhắn nào. Bạn ghim lời đầu tiên nhé.';
+    } catch (error) {
+      if (requestId !== wallRequest) return;
+      wishWallStatus.textContent = 'Chưa tải được lời nhắn. Nhấn Làm mới để thử lại.';
+    } finally {
+      if (requestId === wallRequest) {
+        wallLoading = false;
+        updateWallControls();
+      }
     }
   }
 
   function renderWall(isFresh = false) {
     if (!wishWall) return;
 
-    const all = [...userNotes].reverse().concat(SAMPLES).slice(0, POSITIONS.length);
+    const all = userNotes.slice(0, POSITIONS.length);
     wishWall.innerHTML = '';
 
     all.forEach((note, i) => {
       const spot = POSITIONS[i];
       const card = document.createElement('article');
-      card.className = 'wish-note';
+      card.className = 'wish-note no-advance';
       card.style.setProperty('--x', spot.x);
       card.style.setProperty('--y', spot.y);
       card.style.setProperty('--nr', `${spot.r}deg`);
@@ -412,8 +415,19 @@
       const text = document.createElement('p');
       text.className = 'wish-note__text';
       text.textContent = note.text;
+      text.title = note.text;
+      text.tabIndex = 0;
 
       card.append(pin, name, text);
+      if (note.created_at) {
+        const sent = document.createElement('time');
+        sent.className = 'wish-note__time';
+        sent.dateTime = note.created_at;
+        sent.textContent = new Date(note.created_at).toLocaleString('vi-VN', {
+          day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit'
+        });
+        card.appendChild(sent);
+      }
       wishWall.appendChild(card);
     });
 
@@ -435,7 +449,7 @@
     wishHint.textContent = message;
     wishHint.classList.toggle('is-error', kind === 'error');
     wishHint.classList.toggle('is-ok', kind === 'ok');
-    if (kind) {
+    if (kind === 'ok') {
       hintTimer = window.setTimeout(() => {
         wishHint.textContent = defaultHint;
         wishHint.classList.remove('is-error', 'is-ok');
@@ -454,8 +468,11 @@
   }
 
   if (wishForm && wishWall) {
-    renderWall();
+    loadWall();
     updateCount();
+    wishNewer.addEventListener('click', () => loadWall(wallPage - 1));
+    wishOlder.addEventListener('click', () => loadWall(wallPage + 1));
+    wishRefresh.addEventListener('click', () => loadWall(0));
 
     wishText.addEventListener('input', () => {
       updateCount();
@@ -474,9 +491,9 @@
       }
     });
 
-    wishForm.addEventListener('submit', (event) => {
+    wishForm.addEventListener('submit', async (event) => {
       event.preventDefault();
-      if (Date.now() - lastSubmitAt < 500) return;
+      if (submitting) return;
 
       const message = wishText.value.trim();
       if (!message) {
@@ -486,23 +503,46 @@
         return;
       }
 
-      lastSubmitAt = Date.now();
       const name = wishName.value.trim() || 'một người bạn';
-      userNotes.push({ name, text: message });
-      userNotes = userNotes.slice(-MAX_USER_NOTES);
-
-      const saved = saveNotes();
-      renderWall(true);
-      wishForm.reset();
-      updateCount();
-      setFieldError(false);
-      setHint(
-        saved ? 'Đã ghim lời nhắn của bạn lên tường.' : 'Đã ghim lời nhắn, nhưng trình duyệt không cho lưu lâu dài.',
-        saved ? 'ok' : 'error'
-      );
-
-      const rect = wishWall.getBoundingClientRect();
-      burstAt(rect.left + rect.width * 0.25, rect.top + Math.min(rect.height * 0.3, 140), 18);
+      if (name.length > 24 || message.length > 140) {
+        setHint('Người nhận tối đa 24 ký tự, lời nhắn tối đa 140 ký tự nhé.', 'error');
+        return;
+      }
+      if (!pendingNote || pendingNote.name !== name || pendingNote.text !== message) {
+        pendingNote = { id: crypto.randomUUID(), name, text: message };
+      }
+      submitting = true;
+      wishSubmit.disabled = true;
+      wishName.readOnly = true;
+      wishText.readOnly = true;
+      wishForm.setAttribute('aria-busy', 'true');
+      setHint('Đang lưu lời nhắn…');
+      try {
+        const saved = await window.WishesAPI.save(pendingNote);
+        pendingNote = null;
+        wishForm.reset();
+        updateCount();
+        setFieldError(false);
+        setHint('Đã lưu lời nhắn. Mọi người đều có thể đọc trên tường.', 'ok');
+        // Show the confirmed record even if the following read loses its connection.
+        ++wallRequest;
+        wallLoading = false;
+        wallPage = 0;
+        wallHasOlder = true;
+        userNotes = [saved, ...userNotes.filter(note => note.id !== saved.id)].slice(0, POSITIONS.length);
+        renderWall(true);
+        await loadWall(0, true);
+        const rect = wishWall.getBoundingClientRect();
+        burstAt(rect.left + rect.width * 0.25, rect.top + Math.min(rect.height * 0.3, 140), 18);
+      } catch (error) {
+        setHint('Chưa xác nhận được lời nhắn đã lưu. Nội dung vẫn ở đây, bạn bấm ghim để thử lại nhé.', 'error');
+      } finally {
+        submitting = false;
+        wishSubmit.disabled = false;
+        wishName.readOnly = false;
+        wishText.readOnly = false;
+        wishForm.removeAttribute('aria-busy');
+      }
     });
   }
 

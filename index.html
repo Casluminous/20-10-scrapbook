@@ -614,12 +614,19 @@
                   <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v13M6 10l6 6 6-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
                 </button>
               </div>
-              <p class="wish-form__hint" id="wishHint">Lời nhắn được lưu trên trình duyệt của bạn. Tường giữ 5 lời mới nhất.</p>
+              <p class="wish-form__hint" id="wishHint" role="status">Lời nhắn được lưu trực tuyến và hiển thị công khai cho mọi người.</p>
             </form>
 
             <div class="wish-wall-wrap no-advance reveal" style="--d:.3s">
               <div class="wish-wall" id="wishWall" aria-label="Tường lời chúc"></div>
               <p class="wish-wall__caption hand">những lời chưa kịp nói, được ghim lại đây. <span class="wall-more">trượt ngang →</span></p>
+              <div class="wish-wall-controls no-advance" aria-label="Xem lời nhắn">
+                <button class="wish-wall-controls__button" id="wishNewer" type="button" disabled>← Mới hơn</button>
+                <span id="wishPageInfo">Trang 1</span>
+                <button class="wish-wall-controls__button" id="wishOlder" type="button" disabled>Cũ hơn →</button>
+                <button class="wish-wall-controls__button" id="wishRefresh" type="button">Làm mới</button>
+              </div>
+              <p class="wish-wall-status" id="wishWallStatus" role="status">Đang tải lời nhắn…</p>
             </div>
           </div>
           <span class="folio">05</span>
@@ -726,6 +733,8 @@
 <!-- ============ Ambient audio ============ -->
 <audio id="bgMusic" src="audio/nhac-nen.m4a" loop preload="metadata"></audio>
 
+<script src="wishes-config.js"></script>
+<script src="wishes-api.js"></script>
 <script src="script.js"></script>
 </body>
 </html>
