@@ -1,0 +1,7 @@
+_mobile-test.html
+.env
+.env.*
+!.env.example
+node_modules/
+.DS_Store
+Thumbs.db
