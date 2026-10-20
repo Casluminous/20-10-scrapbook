@@ -349,6 +349,9 @@
   let wallRequest = 0;
   let submitting = false;
   let pendingNote = null;
+  let favoriteReady = false;
+  let favoriteIds = new Set();
+  const favoritePending = new Set();
   let hintTimer = 0;
   const defaultHint = 'Lời nhắn được lưu trực tuyến và hiển thị công khai cho mọi người.';
 
@@ -373,10 +376,20 @@
       userNotes = result.notes;
       wallPage = page;
       wallHasOlder = result.hasOlder;
+      favoriteReady = false;
       renderWall(isFresh);
       wishWallStatus.textContent = userNotes.length
         ? 'Lời nhắn chung của mọi người. Nhấn Làm mới để xem lời vừa gửi.'
         : 'Chưa có lời nhắn nào. Bạn ghim lời đầu tiên nhé.';
+      try {
+        const ids = await window.WishesAPI.liked(result.notes.map(note => note.id));
+        if (requestId !== wallRequest) return;
+        favoriteIds = new Set(ids);
+        favoriteReady = true;
+        updateFavoriteButtons();
+      } catch (_) {
+        if (requestId === wallRequest) wishWallStatus.textContent = 'Đã tải lời chúc, nhưng chưa tải được trạng thái yêu thích. Nhấn Làm mới để thử lại.';
+      }
     } catch (error) {
       if (requestId !== wallRequest) return;
       wishWallStatus.textContent = 'Chưa tải được lời nhắn. Nhấn Làm mới để thử lại.';
@@ -426,6 +439,8 @@
       text.tabIndex = 0;
 
       card.append(pin, name, text);
+      const footer = document.createElement('div');
+      footer.className = 'wish-note__footer';
       if (note.created_at) {
         const sent = document.createElement('time');
         sent.className = 'wish-note__time';
@@ -433,14 +448,57 @@
         sent.textContent = new Date(note.created_at).toLocaleString('vi-VN', {
           day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit'
         });
-        card.appendChild(sent);
+        footer.appendChild(sent);
       }
+      const heart = document.createElement('button');
+      heart.type = 'button';
+      heart.className = 'wish-heart';
+      heart.dataset.favorite = note.id;
+      heart.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1.1-1.1a5.5 5.5 0 0 0-7.8 7.8L12 21l8.8-8.6a5.5 5.5 0 0 0 0-7.8Z"/></svg><span></span>';
+      heart.addEventListener('click', async event => {
+        event.stopPropagation();
+        if (!favoriteReady || favoritePending.has(note.id)) return;
+        favoritePending.add(note.id);
+        updateFavoriteButtons();
+        try {
+          const result = await window.WishesAPI.favorite(note.id, !favoriteIds.has(note.id));
+          result.liked ? favoriteIds.add(note.id) : favoriteIds.delete(note.id);
+          const current = userNotes.find(item => item.id === note.id);
+          if (current) current.favorite_count = result.favorite_count;
+          wishWallStatus.textContent = result.liked ? 'Đã thả một trái tim. Bấm lại để bỏ yêu thích.' : 'Đã bỏ yêu thích lời chúc.';
+        } catch (_) {
+          // Reconcile in case a committed request lost its response.
+          await loadWall(wallPage);
+          wishWallStatus.textContent = 'Chưa xác nhận được lượt yêu thích. Đã làm mới tường; bạn kiểm tra và thử lại nhé.';
+        } finally {
+          favoritePending.delete(note.id);
+          updateFavoriteButtons();
+        }
+      });
+      footer.appendChild(heart);
+      card.appendChild(footer);
       wishWall.appendChild(card);
     });
+
+    updateFavoriteButtons();
 
     if (isFresh && wishWall.firstElementChild) {
       wishWall.firstElementChild.classList.add('is-new');
     }
+  }
+
+  function updateFavoriteButtons() {
+    if (!wishWall) return;
+    wishWall.querySelectorAll('[data-favorite]').forEach(button => {
+      const id = button.dataset.favorite;
+      const note = userNotes.find(item => item.id === id);
+      const isLiked = favoriteIds.has(id);
+      button.disabled = !favoriteReady || favoritePending.has(id);
+      button.setAttribute('aria-pressed', String(isLiked));
+      button.setAttribute('aria-label', `${isLiked ? 'Bỏ yêu thích' : 'Yêu thích'} lời chúc gửi ${note?.name || 'bạn'}; ${note?.favorite_count || 0} lượt`);
+      button.title = isLiked ? 'Bỏ yêu thích' : 'Yêu thích lời chúc';
+      button.querySelector('span').textContent = String(note?.favorite_count || 0);
+    });
   }
 
   function updateCount() {

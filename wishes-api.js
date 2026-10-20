@@ -3,7 +3,7 @@
   const config = window.WISH_CONFIG;
   const endpoint = `${config.url.replace(/\/$/, '')}/rest/v1/wishes`;
   const headers = { apikey: config.publishableKey };
-  const fields = 'id,name,text,created_at';
+  const fields = 'id,name,text,created_at,favorite_count';
 
   async function request(query, options = {}) {
     const controller = new AbortController();
@@ -27,6 +27,24 @@
   }
 
   window.WishesAPI = Object.freeze({
+    async liked(ids) {
+      if (!ids.length) return [];
+      const session = await window.WishSessions.visitor(false);
+      if (!session) return [];
+      const query = new URLSearchParams({ select: 'wish_id', wish_id: `in.(${ids.join(',')})` });
+      const rows = await window.WishSessions.request(`/rest/v1/wish_favorites?${query}`, { token: session.access_token });
+      return rows.map(row => row.wish_id);
+    },
+
+    async favorite(id, liked) {
+      const session = await window.WishSessions.visitor(true);
+      if (!session) throw new Error('Chưa tạo được phiên khách.');
+      return window.WishSessions.request('/rest/v1/rpc/set_wish_favorite', {
+        method: 'POST', token: session.access_token,
+        body: JSON.stringify({ p_wish_id: id, p_liked: liked })
+      });
+    },
+
     async list(page = 0, pageSize = 9) {
       const query = new URLSearchParams({
         select: fields,

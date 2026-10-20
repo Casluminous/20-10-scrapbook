@@ -1636,12 +1636,16 @@ button { -webkit-tap-highlight-color: transparent; }
   position: relative;
   flex: 1;
   min-height: 370px;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 18px 12px;
+  align-content: start;
 }
 .wish-note {
-  position: absolute;
-  left: var(--x);
-  top: var(--y);
-  width: 30.5%;
+  position: relative;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
   padding: 19px 13px 12px;
   background:
     var(--noise),
@@ -1710,6 +1714,15 @@ button { -webkit-tap-highlight-color: transparent; }
   color: var(--ink-3);
   opacity: .8;
 }
+.wish-note__footer { display: flex; align-items: center; justify-content: space-between; gap: 3px; margin-top: auto; padding-top: 5px; }
+.wish-note__footer .wish-note__time { margin-top: 0; font-size: 6.5px; }
+.wish-heart { min-width: 44px; min-height: 44px; padding: 8px 3px; display: inline-flex; align-items: center; justify-content: center; gap: 4px; border: 0; background: transparent; color: var(--ink-3); cursor: pointer; font-family: var(--mono); font-size: 10px; touch-action: manipulation; }
+.wish-heart svg { width: 17px; height: 17px; transition: transform .2s ease; }
+.wish-heart[aria-pressed="true"] { color: var(--rust); }
+.wish-heart[aria-pressed="true"] svg { fill: currentColor; }
+.wish-heart:hover:not(:disabled) svg { transform: scale(1.12); }
+.wish-heart:disabled { opacity: .5; cursor: default; }
+.wish-heart:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
 .wish-note__text {
   display: block;
   max-height: 5.08em;
@@ -1750,6 +1763,7 @@ button { -webkit-tap-highlight-color: transparent; }
 .wish-wall-wrap:has(.wish-wall.is-empty) { min-height: 0; }
 .wish-wall.is-empty {
   display: grid;
+  grid-template-columns: 1fr;
   place-items: center;
   min-height: 170px;
 }
@@ -1763,7 +1777,7 @@ button { -webkit-tap-highlight-color: transparent; }
   opacity: .75;
   transform: rotate(-2deg);
 }
-.wall-more { display: none; }
+.wall-more { display: none; white-space: nowrap; }
 
 /* =========================================================
    06 · Finale
