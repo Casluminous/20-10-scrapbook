@@ -10,7 +10,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500&family=Lora:ital,wght@0,400;0,500;1,400&family=Patrick+Hand&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="wishes-admin.css?v=20261020-1">
+  <link rel="stylesheet" href="wishes-admin.css?v=20261020-chat1">
 </head>
 <body>
   <a class="skip-link" href="#main">Đến nội dung</a>
@@ -54,9 +54,10 @@
           <div><p class="handwritten">Chăm chút từng lời, giữ lại từng thương.</p><h1 id="dashboardTitle">Người <em>giữ sổ.</em></h1></div>
           <div class="account"><span id="accountEmail"></span><button class="text-button" id="logoutButton" type="button">Đăng xuất</button></div>
         </div>
-        <dl class="totals" aria-label="Tổng quan lời chúc">
-          <div><dt>Đang trên tường</dt><dd id="visibleCount">—</dd></div>
-          <div><dt>Lượt yêu thích</dt><dd id="favoriteCount">—</dd></div>
+        <div class="resource-tabs" role="group" aria-label="Loại nội dung quản lý"><button type="button" id="wishesKind" aria-pressed="true">Lời chúc</button><button type="button" id="chatKind" aria-pressed="false">Trò chuyện</button></div>
+        <dl class="totals" aria-label="Tổng quan nội dung">
+          <div><dt id="visibleCountLabel">Đang trên tường</dt><dd id="visibleCount">—</dd></div>
+          <div id="favoriteTotal"><dt>Lượt yêu thích</dt><dd id="favoriteCount">—</dd></div>
           <div><dt>Trong thùng rác</dt><dd id="trashCount">—</dd></div>
         </dl>
         <div class="toolbar">
@@ -67,20 +68,20 @@
           <button class="text-button" id="refreshButton" type="button">Làm mới ↻</button>
         </div>
         <form id="searchForm" class="search-form" role="search">
-          <div class="search-field"><label for="adminSearch">Tìm trong lời chúc</label><input id="adminSearch" type="search" maxlength="140" placeholder="Người nhận hoặc một điều bạn nhớ…"><button class="button" type="submit">Tìm</button></div>
+          <div class="search-field"><label for="adminSearch" id="adminSearchLabel">Tìm trong lời chúc</label><input id="adminSearch" type="search" maxlength="140" placeholder="Người nhận hoặc một điều bạn nhớ…"><button class="button" type="submit">Tìm</button></div>
           <div class="sort-field"><label for="adminSort">Sắp xếp</label><select id="adminSort"><option value="newest">Mới nhất</option><option value="favorites">Nhiều yêu thích</option></select></div>
         </form>
         <p id="adminStatus" class="dashboard-status" role="status"></p>
-        <div id="adminWishes" class="letters" aria-label="Danh sách lời chúc"></div>
-        <nav class="pagination" aria-label="Trang lời chúc"><button class="button" id="adminPrevious" type="button" disabled>← Trang trước</button><span id="adminPage">Trang 1</span><button class="button" id="adminNext" type="button" disabled>Trang sau →</button></nav>
-        <p class="endnote">Lời đưa vào thùng rác sẽ ẩn khỏi tường chung. Bạn luôn có thể khôi phục lại.</p>
+        <div id="adminWishes" class="letters" aria-label="Danh sách nội dung"></div>
+        <nav class="pagination" aria-label="Trang nội dung"><button class="button" id="adminPrevious" type="button" disabled>← Trang trước</button><span id="adminPage">Trang 1</span><button class="button" id="adminNext" type="button" disabled>Trang sau →</button></nav>
+        <p class="endnote" id="adminEndnote">Lời đưa vào thùng rác sẽ ẩn khỏi tường chung. Bạn luôn có thể khôi phục lại.</p>
       </section>
       <footer class="footer"><span>20.10 — NGÀY PHỤ NỮ VIỆT NAM</span><span class="handwritten">giữ một chút dịu dàng.</span></footer>
     </div>
   </main>
-  <script src="wishes-config.js?v=20261020-favorites1"></script>
-  <script src="wishes-session.js?v=20261020-favorites1"></script>
-  <script src="wishes-admin-api.js?v=20261020-1"></script>
-  <script src="wishes-admin.js?v=20261020-1"></script>
+  <script src="wishes-config.js?v=20261020-chat1"></script>
+  <script src="wishes-session.js?v=20261020-chat1"></script>
+  <script src="wishes-admin-api.js?v=20261020-chat1"></script>
+  <script src="wishes-admin.js?v=20261020-chat1"></script>
 </body>
 </html>

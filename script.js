@@ -44,6 +44,7 @@
   }
 
   function updateChrome() {
+    $('#pageTotal').textContent = pad(total);
     pageNow.textContent = pad(index + 1);
     pageNow.classList.remove('pop');
     void pageNow.offsetWidth;
@@ -61,6 +62,7 @@
 
     prevBtn.disabled = index === 0;
     nextBtn.disabled = index === total - 1;
+    window.dispatchEvent(new CustomEvent('bookpagechange', { detail: { page: index + 1 } }));
   }
 
   function announce() {
@@ -607,110 +609,6 @@
         wishName.readOnly = false;
         wishText.readOnly = false;
         wishForm.removeAttribute('aria-busy');
-      }
-    });
-  }
-
-  /* ---------------------------------------------------------
-     Ambient audio
-     --------------------------------------------------------- */
-  const bgMusic = $('#bgMusic');
-  const soundToggle = $('#soundToggle');
-  const MUSIC_VOLUME = 0.32;
-  let musicFadeFrame = 0;
-  let userPausedMusic = false;
-
-  function setSoundUI(isPlaying) {
-    if (!soundToggle) return;
-    soundToggle.classList.toggle('is-playing', isPlaying);
-    soundToggle.setAttribute('aria-pressed', String(isPlaying));
-    soundToggle.setAttribute('aria-label', isPlaying ? 'Tắt nhạc nền' : 'Bật nhạc nền');
-  }
-
-  function fadeMusic(target, duration, done) {
-    if (!bgMusic) return;
-    cancelAnimationFrame(musicFadeFrame);
-    const start = bgMusic.volume;
-    const startedAt = performance.now();
-    const tick = (now) => {
-      const k = Math.min(1, (now - startedAt) / duration);
-      const eased = 1 - Math.pow(1 - k, 2);
-      bgMusic.volume = Math.min(1, Math.max(0, start + (target - start) * eased));
-      if (k < 1) musicFadeFrame = requestAnimationFrame(tick);
-      else if (done) done();
-    };
-    musicFadeFrame = requestAnimationFrame(tick);
-  }
-
-  function removeFirstGesture() {
-    window.removeEventListener('click', onFirstGesture, true);
-    window.removeEventListener('keydown', onFirstGesture, true);
-  }
-
-  async function playMusic() {
-    if (!bgMusic) return false;
-    if (!bgMusic.paused) {
-      setSoundUI(true);
-      return true;
-    }
-    try {
-      bgMusic.volume = Math.min(bgMusic.volume, 0.08);
-      await bgMusic.play();
-      setSoundUI(true);
-      fadeMusic(MUSIC_VOLUME, 1400);
-      removeFirstGesture();
-      return true;
-    } catch (err) {
-      setSoundUI(false);
-      return false;
-    }
-  }
-
-  function pauseMusic() {
-    if (!bgMusic) return;
-    userPausedMusic = true;
-    removeFirstGesture();
-    fadeMusic(0, 260, () => bgMusic.pause());
-    setSoundUI(false);
-  }
-
-  function onFirstGesture(event) {
-    if (event.target.closest && event.target.closest('#soundToggle')) return;
-    removeFirstGesture();
-    if (!userPausedMusic) playMusic();
-  }
-
-  if (bgMusic) {
-    bgMusic.loop = true;
-    bgMusic.volume = 0;
-    setSoundUI(false);
-
-    if (soundToggle) {
-      soundToggle.addEventListener('click', () => {
-        if (bgMusic.paused) {
-          userPausedMusic = false;
-          playMusic();
-        } else {
-          pauseMusic();
-        }
-      });
-    }
-
-    bgMusic.addEventListener('play', () => setSoundUI(true));
-    bgMusic.addEventListener('pause', () => setSoundUI(false));
-    bgMusic.addEventListener('error', () => {
-      if (soundToggle) {
-        soundToggle.classList.add('is-unavailable');
-        soundToggle.setAttribute('aria-disabled', 'true');
-        soundToggle.setAttribute('aria-label', 'Không tải được nhạc nền');
-      }
-      setSoundUI(false);
-    });
-
-    playMusic().then((started) => {
-      if (!started) {
-        window.addEventListener('click', onFirstGesture, true);
-        window.addEventListener('keydown', onFirstGesture, true);
       }
     });
   }

@@ -36,30 +36,32 @@
       session = null;
       await api.signOut(previous).catch(() => {});
     },
-    async list({ page = 0, trash = false, search = '', sort = 'newest' } = {}) {
+    async list({ page = 0, trash = false, search = '', sort = 'newest', kind = 'wishes' } = {}) {
+      const chat = kind === 'chat';
       const query = new URLSearchParams({
-        select: 'id,name,text,created_at,deleted_at,favorite_count',
+        select: chat ? 'id,display_name,body,created_at,deleted_at' : 'id,name,text,created_at,deleted_at,favorite_count',
         deleted_at: trash ? 'not.is.null' : 'is.null',
-        order: sort === 'favorites' ? 'favorite_count.desc,created_at.desc,id.desc' : 'created_at.desc,id.desc',
+        order: !chat && sort === 'favorites' ? 'favorite_count.desc,created_at.desc,id.desc' : 'created_at.desc,id.desc',
         limit: '21', offset: String(page * 20)
       });
       const term = search.replace(/[,().*%\\"]/g, ' ').trim().slice(0, 140);
-      if (term) query.set('or', `(name.ilike.*${term}*,text.ilike.*${term}*)`);
-      const rows = await request(`/rest/v1/wishes?${query}`);
-      return { notes: rows.slice(0, 20), hasOlder: rows.length > 20 };
+      if (term) query.set('or', chat ? `(display_name.ilike.*${term}*,body.ilike.*${term}*)` : `(name.ilike.*${term}*,text.ilike.*${term}*)`);
+      const rows = await request(`/rest/v1/${chat ? 'chat_messages' : 'wishes'}?${query}`);
+      const notes = rows.slice(0, 20).map(row => chat ? { ...row, name:row.display_name, text:row.body, favorite_count:0 } : row);
+      return { notes, hasOlder: rows.length > 20 };
     },
-    counts: () => request('/rest/v1/rpc/admin_wish_counts', { method: 'POST', body: '{}' }),
-    async moderate(id, trash) {
+    counts: (kind = 'wishes') => request(`/rest/v1/rpc/${kind === 'chat' ? 'admin_chat_counts' : 'admin_wish_counts'}`, { method: 'POST', body: '{}' }),
+    async moderate(id, trash, kind = 'wishes') {
       const query = new URLSearchParams({ id: `eq.${id}`, select: 'id,deleted_at' });
-      const rows = await request(`/rest/v1/wishes?${query}`, {
+      const rows = await request(`/rest/v1/${kind === 'chat' ? 'chat_messages' : 'wishes'}?${query}`, {
         method: 'PATCH', headers: { Prefer: 'return=representation' },
         body: JSON.stringify({ deleted_at: trash ? new Date().toISOString() : null })
       });
       if (!rows?.[0]?.id) throw new Error('Chưa xác nhận được thay đổi. Hãy làm mới và thử lại.');
       return rows[0];
     },
-    async liked(ids) {
-      if (!ids.length) return [];
+    async liked(ids, kind = 'wishes') {
+      if (!ids.length || kind === 'chat') return [];
       const query = new URLSearchParams({ select: 'wish_id', wish_id: `in.(${ids.join(',')})` });
       return (await request(`/rest/v1/wish_favorites?${query}`)).map(row => row.wish_id);
     },

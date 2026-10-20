@@ -1,6 +1,6 @@
 # Sổ tay 20 tháng 10
 
-Website kỷ niệm Ngày Phụ nữ Việt Nam, gồm 6 trang với hiệu ứng lật sổ, nhạc nền và tường lời chúc.
+Website kỷ niệm Ngày Phụ nữ Việt Nam, gồm 7 trang với hiệu ứng lật sổ, nhạc nền, tường lời chúc và phòng chat chung.
 
 ## Chạy trên máy
 
@@ -25,7 +25,7 @@ Sau khi chỉnh sửa và kiểm tra trên máy:
 
 ```powershell
 cd C:\Users\steal\20-10-scrapbook
-git add index.html styles.css script.js wishes-api.js wishes-config.js wishes-session.js wishes-admin-api.js wishes-admin.js wishes-admin.css so-rieng-*.html audio
+git add index.html styles.css script.js music-player.js chat-api.js chat.js wishes-api.js wishes-config.js wishes-session.js wishes-admin-api.js wishes-admin.js wishes-admin.css so-rieng-*.html audio
 git commit -m "Update scrapbook"
 git push origin main
 ```
@@ -35,6 +35,7 @@ GitHub Pages sẽ tự xuất bản phiên bản mới sau khi push.
 ## Nhạc và lời chúc
 
 - Nhạc nền: `audio/nhac-nen.m4a`. Trình duyệt có thể yêu cầu người xem nhấn nút nhạc hoặc tương tác với trang trước khi phát.
+- Âm lượng mặc định 22%. Nút chỉnh cạnh nút nhạc mở thanh 0–100%; lựa chọn được ghi nhớ trong trình duyệt. Chỉnh khi đang tạm dừng không tự phát nhạc. Web Audio GainNode điều khiển mức nghe khi được hỗ trợ; môi trường còn lại dùng thuộc tính volume của audio.
 - Lời chúc được lưu trong bảng `public.wishes` của Supabase và hiển thị công khai cho mọi người. Mỗi lượt hiển thị tối đa 9 lời, có nút xem lời cũ; không tự xóa khi có lời mới.
 - Font chữ được tải từ Google Fonts.
 - `_mobile-test.html` là file thử trên máy và không được đưa lên website.
@@ -56,6 +57,18 @@ Khách thả tim ngay trên các thẻ ở trang Gửi gắm. Supabase tạo dan
 Migration `supabase/20261020-moderation-favorites.sql` đã được áp dụng sau schema ban đầu, giữ lại toàn bộ lời chúc. Chủ dự án đã bật anonymous sign-ins và cấp UID quản trị trong database. Khi dựng một dự án mới, cần tạo tài khoản chủ và tự cấp UID đó; không cấp quyền qua email nhập ở frontend hoặc metadata người dùng.
 
 `supabase/verify-moderation-favorites.sql` kiểm tra phân quyền, yêu thích, thùng rác và khôi phục trong giao dịch tự hoàn tác, không thay đổi lời chúc thật.
+
+## Phòng chat chung — trang 7
+
+Mở https://casluminous.github.io/20-10-scrapbook/#trang-7. Mọi người nhập tên (tối đa 24 ký tự), gửi tin (tối đa 500 ký tự), đọc 50 tin mới nhất và bấm Xem tin trước để đọc lịch sử. Tên hiển thị được ghi nhớ trên trình duyệt. Tin nhắn là văn bản thuần và được lưu trong Supabase, không tự biến mất khi đóng trang.
+
+Phòng chat kiểm tra tin mới khoảng 5 giây khi đang mở trang 7 và tab đang hiển thị. Rời trang hoặc chuyển tab sẽ dừng việc lấy tin. Tin mới không tự kéo người đang đọc lịch sử xuống cuối. Nút Làm mới mở lại 50 tin mới nhất.
+
+Dùng lại phiên khách ẩn danh của tính năng yêu thích, không yêu cầu người xem đăng ký. RPC gửi tin đặt tác giả và thời gian tại máy chủ, giới hạn một tin mỗi 3 giây theo danh tính khách và nhận diện lần gửi bằng UUID. Khi mạng lỗi, giữ bản nhập và dùng lại UUID để tránh lưu trùng lúc thử lại. Giới hạn theo danh tính không thay thế hệ thống chống spam toàn diện.
+
+Trong trang quản trị, chọn Trò chuyện để tìm, đưa tin vào thùng rác hoặc khôi phục. Khách không được sửa/xóa tin, đọc mã tác giả hoặc giả mạo thời gian qua API. UID quản trị hiện có tiếp tục được sử dụng.
+
+`supabase/20261020-chat.sql` đã tạo bảng/RPC và phân quyền. `supabase/verify-chat.sql` kiểm tra gửi tin, xác thực, giới hạn, chống trùng, mã tác giả và thùng rác bằng giao dịch hoàn tác.
 
 `supabase/schema.sql` ghi lại cấu trúc và chính sách của bảng đã tạo, dùng cho dự án mới. Không chạy lại các lệnh tạo policy trên cùng dự án nếu policy đã tồn tại.
 

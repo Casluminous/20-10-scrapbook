@@ -4,6 +4,7 @@
   const api = window.WishesAdmin;
   const list = $('#adminWishes');
   let active = false;
+  let kind = 'wishes';
   let trash = false;
   let page = 0;
   let hasOlder = false;
@@ -22,7 +23,8 @@
     $('#adminNext').disabled = busy || !hasOlder;
     $('#adminPage').textContent = `Trang ${page + 1}`;
     $('#adminWishes').setAttribute('aria-busy', String(busy));
-    for (const selector of ['#refreshButton', '#visibleFilter', '#trashFilter', '#searchForm button', '#adminSort']) $(selector).disabled = busy;
+    for (const selector of ['#refreshButton', '#visibleFilter', '#trashFilter', '#searchForm button', '#wishesKind', '#chatKind']) $(selector).disabled = busy;
+    $('#adminSort').disabled = busy || kind === 'chat';
     list.querySelectorAll('button').forEach(button => {
       button.disabled = busy || (button.classList.contains('heart-button') && (!likesKnown || trash));
     });
@@ -32,9 +34,9 @@
     const box = document.createElement('div');
     box.className = 'empty-letter';
     const title = document.createElement('p');
-    title.textContent = trash ? 'Thùng rác đang trống.' : 'Một góc sổ còn trống.';
+    title.textContent = trash ? 'Thùng rác đang trống.' : kind === 'chat' ? 'Góc trò chuyện còn yên ắng.' : 'Một góc sổ còn trống.';
     const text = document.createElement('span');
-    text.textContent = $('#adminSearch').value.trim() ? 'Không tìm thấy lời chúc phù hợp. Thử một từ khác nhé.' : trash ? 'Những lời bạn cất khỏi tường sẽ ở đây.' : 'Lời chúc mọi người gửi sẽ xuất hiện tại đây.';
+    text.textContent = $('#adminSearch').value.trim() ? 'Không tìm thấy nội dung phù hợp. Thử một từ khác nhé.' : trash ? 'Nội dung bạn cất khỏi trang chung sẽ ở đây.' : kind === 'chat' ? 'Tin nhắn ở trang 7 sẽ xuất hiện tại đây.' : 'Lời chúc mọi người gửi sẽ xuất hiện tại đây.';
     box.append(title, text);
     list.appendChild(box);
   }
@@ -50,7 +52,7 @@
       meta.className = 'letter__meta';
       const name = document.createElement('h2');
       name.className = 'letter__name';
-      name.textContent = `GỬI ${note.name}`;
+      name.textContent = `${kind === 'chat' ? 'TỪ' : 'GỬI'} ${note.name}`;
       const date = document.createElement('time');
       date.dateTime = note.created_at;
       date.textContent = new Date(note.created_at).toLocaleString('vi-VN', { day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit' });
@@ -90,13 +92,18 @@
         busy = true;
         controls();
         try {
-          await api.moderate(note.id, !trash);
-          status(trash ? 'Đã khôi phục lời chúc lên tường.' : 'Đã đưa vào thùng rác. Bạn có thể khôi phục bất cứ lúc nào.');
+          await api.moderate(note.id, !trash, kind);
+          status(trash ? 'Đã khôi phục nội dung lên trang chung.' : 'Đã đưa vào thùng rác. Bạn có thể khôi phục bất cứ lúc nào.');
           await load(page, true);
         } catch (_) { status('Chưa xác nhận được thay đổi. Hãy làm mới để kiểm tra và thử lại.', true); }
         finally { busy = false; controls(); }
       });
-      actions.append(heart, moderate);
+      if (kind === 'chat') {
+        const label = document.createElement('span');
+        label.className = 'chat-admin-label';
+        label.textContent = 'TIN NHẮN · TRANG 7';
+        actions.append(label, moderate);
+      } else actions.append(heart, moderate);
       card.append(meta, text, actions);
       list.appendChild(card);
     }
@@ -109,15 +116,15 @@
     if (!preserveStatus) status('Đang mở những lời được giữ lại…');
     try {
       const [result, counts] = await Promise.all([
-        api.list({ page:nextPage, trash, search:$('#adminSearch').value, sort:$('#adminSort').value }),
-        api.counts().catch(() => null)
+        api.list({ page:nextPage, trash, search:$('#adminSearch').value, sort:$('#adminSort').value, kind }),
+        api.counts(kind).catch(() => null)
       ]);
       if (!active || requestId !== generation) return;
       if (!result.notes.length && nextPage > 0) return load(nextPage - 1, preserveStatus);
       page = nextPage;
       hasOlder = result.hasOlder;
       likesKnown = false;
-      try { liked = new Set(await api.liked(result.notes.map(note => note.id))); likesKnown = true; }
+      try { liked = new Set(await api.liked(result.notes.map(note => note.id), kind)); likesKnown = true; }
       catch (_) { /* Reading the letters still works if favorite state cannot load. */ }
       if (!active || requestId !== generation) return;
       if (counts) {
@@ -126,7 +133,7 @@
         $('#favoriteCount').textContent = counts.favorites;
       }
       render(result.notes);
-      if (!preserveStatus) status(`${result.notes.length} lời chúc trong trang này.${likesKnown ? '' : ' Chưa tải được trạng thái yêu thích; nhấn Làm mới để thử lại.'}`);
+      if (!preserveStatus) status(`${result.notes.length} ${kind === 'chat' ? 'tin nhắn' : 'lời chúc'} trong trang này.${likesKnown ? '' : ' Chưa tải được trạng thái yêu thích; nhấn Làm mới để thử lại.'}`);
     } catch (_) {
       if (active && requestId === generation) status('Không tải được dữ liệu hoặc phiên đã hết hạn. Thử Làm mới; nếu vẫn lỗi, đăng xuất rồi đăng nhập lại.', true);
     } finally {
@@ -141,6 +148,23 @@
     $('#visibleFilter').setAttribute('aria-pressed', String(!trash));
     $('#trashFilter').setAttribute('aria-pressed', String(trash));
     load(0);
+  }
+
+  function changeKind(value) {
+    kind = value;
+    const chat = kind === 'chat';
+    $('#wishesKind').setAttribute('aria-pressed', String(!chat));
+    $('#chatKind').setAttribute('aria-pressed', String(chat));
+    $('#favoriteTotal').hidden = chat;
+    $('#visibleCountLabel').textContent = chat ? 'Tin đang hiển thị' : 'Đang trên tường';
+    $('#visibleFilter').textContent = chat ? 'Trong phòng chat' : 'Trên tường';
+    $('#adminSearchLabel').textContent = chat ? 'Tìm trong trò chuyện' : 'Tìm trong lời chúc';
+    $('#adminSearch').placeholder = chat ? 'Tên người gửi hoặc nội dung…' : 'Người nhận hoặc một điều bạn nhớ…';
+    $('#adminSearch').value = '';
+    $('#adminSort').value = 'newest';
+    $('#adminEndnote').textContent = chat ? 'Tin đưa vào thùng rác sẽ ẩn khỏi phòng chat. Bạn luôn có thể khôi phục lại.' : 'Lời đưa vào thùng rác sẽ ẩn khỏi tường chung. Bạn luôn có thể khôi phục lại.';
+    $('#visibleCount').textContent = $('#trashCount').textContent = $('#favoriteCount').textContent = '—';
+    filter(false);
   }
 
   $('#showPassword').addEventListener('click', () => {
@@ -189,6 +213,8 @@
     await api.signOut();
   });
   $('#visibleFilter').addEventListener('click', () => filter(false));
+  $('#wishesKind').addEventListener('click', () => changeKind('wishes'));
+  $('#chatKind').addEventListener('click', () => changeKind('chat'));
   $('#trashFilter').addEventListener('click', () => filter(true));
   $('#refreshButton').addEventListener('click', () => load(page));
   $('#adminPrevious').addEventListener('click', () => load(page - 1));

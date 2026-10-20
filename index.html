@@ -10,7 +10,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@500;700;800;900&family=IBM+Plex+Mono:wght@400;500&family=Lora:ital,wght@0,400;0,500;1,400;1,500&family=Patrick+Hand&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="styles.css?v=20261020-favorites1">
+<link rel="stylesheet" href="styles.css?v=20261020-chat1">
 </head>
 <body>
 
@@ -143,6 +143,7 @@
 <header class="topbar">
   <a class="brand" href="#trang-1" aria-label="Về trang bìa">20<span>·</span>10</a>
   <div class="topbar__right">
+    <div class="music-controls" id="musicControls">
     <button class="sound-toggle" id="soundToggle" type="button" aria-label="Bật nhạc nền" aria-pressed="false" title="Nhạc nền">
       <svg class="sound-toggle__icon sound-toggle__icon--off" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
         <path d="M4 9.4v5.2h3.4L13 19V5L7.4 9.4H4Z"/>
@@ -155,8 +156,17 @@
       </svg>
       <span class="sound-toggle__label">nhạc</span>
     </button>
+      <button class="music-settings" id="musicSettings" type="button" aria-label="Chỉnh âm lượng nhạc" aria-controls="musicPanel" aria-expanded="false" title="Chỉnh âm lượng">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 17h16"/><circle cx="9" cy="7" r="3" fill="#25291f"/><circle cx="15" cy="17" r="3" fill="#25291f"/></svg>
+      </button>
+      <div class="music-panel" id="musicPanel" hidden>
+        <div class="music-panel__heading"><label for="musicVolume">Âm lượng nhạc</label><output id="musicVolumeValue" for="musicVolume">22%</output></div>
+        <input id="musicVolume" type="range" min="0" max="100" step="1" value="22" aria-label="Âm lượng nhạc">
+        <p>Nhẹ một chút, vừa đủ nghe.</p>
+      </div>
+    </div>
     <span class="chapter-label" id="chapterLabel">Bìa</span>
-    <span class="count"><b id="pageNow">01</b><i>/</i>06</span>
+    <span class="count"><b id="pageNow">01</b><i>/</i><span id="pageTotal">07</span></span>
   </div>
 </header>
 
@@ -166,7 +176,7 @@
 <main class="book" id="book">
 
   <!-- ---------- 01 · cover ---------- -->
-  <section class="page is-active" id="page-1" data-title="Bìa" aria-label="Trang 1 trên 6: Bìa">
+  <section class="page is-active" id="page-1" data-title="Bìa" aria-label="Trang 1 trên 7: Bìa">
     <div class="page-inner">
       <div class="paper-wrap">
         <span class="paper-shadow" aria-hidden="true"></span>
@@ -215,7 +225,7 @@
   </section>
 
   <!-- ---------- 02 · origin ---------- -->
-  <section class="page" id="page-2" data-title="Khởi nguồn" aria-label="Trang 2 trên 6: Khởi nguồn">
+  <section class="page" id="page-2" data-title="Khởi nguồn" aria-label="Trang 2 trên 7: Khởi nguồn">
     <div class="page-inner">
       <div class="paper-wrap">
         <span class="paper-shadow" aria-hidden="true"></span>
@@ -324,7 +334,7 @@
   </section>
 
   <!-- ---------- 03 · portraits ---------- -->
-  <section class="page" id="page-3" data-title="Hình bóng" aria-label="Trang 3 trên 6: Hình bóng">
+  <section class="page" id="page-3" data-title="Hình bóng" aria-label="Trang 3 trên 7: Hình bóng">
     <div class="page-inner">
       <div class="paper-wrap">
         <span class="paper-shadow" aria-hidden="true"></span>
@@ -527,7 +537,7 @@
   </section>
 
   <!-- ---------- 04 · everyday ---------- -->
-  <section class="page" id="page-4" data-title="Những người quanh ta" aria-label="Trang 4 trên 6: Những người quanh ta">
+  <section class="page" id="page-4" data-title="Những người quanh ta" aria-label="Trang 4 trên 7: Những người quanh ta">
     <div class="page-inner">
       <div class="paper-wrap">
         <span class="paper-shadow" aria-hidden="true"></span>
@@ -578,7 +588,7 @@
   </section>
 
   <!-- ---------- 05 · wishes ---------- -->
-  <section class="page" id="page-5" data-title="Gửi gắm" aria-label="Trang 5 trên 6: Gửi gắm">
+  <section class="page" id="page-5" data-title="Gửi gắm" aria-label="Trang 5 trên 7: Gửi gắm">
     <div class="page-inner">
       <div class="paper-wrap">
         <span class="paper-shadow" aria-hidden="true"></span>
@@ -651,7 +661,7 @@
   </section>
 
   <!-- ---------- 06 · finale ---------- -->
-  <section class="page" id="page-6" data-title="Một ngày dịu dàng" aria-label="Trang 6 trên 6: Lời kết">
+  <section class="page" id="page-6" data-title="Một ngày dịu dàng" aria-label="Trang 6 trên 7: Lời kết">
     <div class="page-inner">
       <div class="paper-wrap">
         <span class="paper-shadow" aria-hidden="true"></span>
@@ -671,6 +681,7 @@
                 <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21c-4-3.5-7-6.6-7-10.2A4.1 4.1 0 0 1 12 8a4.1 4.1 0 0 1 7 2.8C19 14.4 16 17.5 12 21Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>
               </button>
               <button class="btn-ghost" type="button" data-go="0">Lật lại từ đầu ↺</button>
+              <button class="btn-ghost" type="button" data-next>Ghé góc trò chuyện →</button>
             </div>
             <p class="finale__sign hand reveal" style="--d:.34s">và đừng quên dành một đóa cho chính mình.</p>
           </div>
@@ -707,6 +718,46 @@
     </div>
   </section>
 
+  <!-- ---------- 07 · common room ---------- -->
+  <section class="page" id="page-7" data-title="Góc trò chuyện" aria-label="Trang 7 trên 7: Góc trò chuyện">
+    <div class="page-inner">
+      <div class="paper-wrap">
+        <span class="paper-shadow" aria-hidden="true"></span>
+        <span class="paper-layer paper-layer--a" aria-hidden="true"></span>
+        <span class="paper-layer paper-layer--b" aria-hidden="true"></span>
+        <span class="paper-layer paper-layer--under" aria-hidden="true"></span>
+        <span class="paper-layer paper-layer--main" aria-hidden="true"></span>
+        <div class="paper-content paper-content--top chat-page">
+          <header class="chapter-head chapter-head--split">
+            <div>
+              <p class="kicker reveal">Một góc nhỏ · Cùng ngồi lại</p>
+              <h2 class="h2 reveal" style="--d:.08s">Kể nhau nghe<br><em>một chút thôi.</em></h2>
+            </div>
+            <p class="body reveal" style="--d:.16s">Sau những lời chúc, mình ngồi lại một chút. Chào nhau, kể một chuyện nhỏ, để tháng Mười thêm gần.</p>
+          </header>
+          <div class="chat-room no-advance reveal" style="--d:.22s">
+            <header class="chat-room__header">
+              <span class="chat-room__label">GÓC TRÒ CHUYỆN CHUNG</span>
+              <button class="chat-text-button" id="chatRefresh" type="button">Làm mới ↻</button>
+            </header>
+            <div class="chat-history"><button class="chat-text-button" id="chatOlder" type="button" disabled>Xem tin trước ↑</button></div>
+            <div class="chat-feed" id="chatFeed" role="log" aria-label="Tin nhắn phòng chung" aria-live="polite" aria-relevant="additions text" tabindex="0">
+              <p class="chat-empty hand" id="chatEmpty">Đang mở góc trò chuyện…</p>
+            </div>
+            <p class="chat-connection" id="chatConnection" role="status">Tin mới tự cập nhật khi bạn mở trang này.</p>
+            <form class="chat-form" id="chatForm" novalidate>
+              <div class="chat-name-row"><label for="chatName">Mọi người gọi bạn là</label><input id="chatName" name="display_name" maxlength="24" autocomplete="nickname" placeholder="Tên của bạn…" required></div>
+              <label class="sr-only" for="chatMessage">Tin nhắn của bạn</label>
+              <textarea id="chatMessage" name="message" maxlength="500" rows="2" placeholder="Một lời chào, một chuyện nhỏ…" required aria-describedby="chatHint"></textarea>
+              <div class="chat-form__foot"><span id="chatCount">0 / 500</span><span class="chat-key-hint">Ctrl + Enter để gửi</span><button class="btn" id="chatSend" type="submit">Gửi tin <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="m4 4 17 8-17 8 3-8-3-8Zm3 8h14" stroke-linejoin="round"/></svg></button></div>
+              <p class="chat-hint" id="chatHint" role="status">Tin nhắn được lưu trực tuyến và mọi người đều đọc được.</p>
+            </form>
+          </div>
+          <span class="folio">07</span>
+        </div>
+      </div>
+    </div>
+  </section>
 </main>
 
 <!-- ============ Navigation ============ -->
@@ -721,6 +772,7 @@
     <button class="dot" type="button" data-page="4" aria-label="Trang 4: Những người quanh ta"></button>
     <button class="dot" type="button" data-page="5" aria-label="Trang 5: Gửi gắm"></button>
     <button class="dot" type="button" data-page="6" aria-label="Trang 6: Lời kết"></button>
+    <button class="dot" type="button" data-page="7" aria-label="Trang 7: Góc trò chuyện"></button>
   </div>
   <button class="nav__arrow" id="nextBtn" type="button" aria-label="Trang sau">
     <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
@@ -733,9 +785,12 @@
 <!-- ============ Ambient audio ============ -->
 <audio id="bgMusic" src="audio/nhac-nen.m4a" loop preload="metadata"></audio>
 
-<script src="wishes-config.js?v=20261020-favorites1"></script>
-<script src="wishes-session.js?v=20261020-favorites1"></script>
-<script src="wishes-api.js?v=20261020-favorites1"></script>
-<script src="script.js?v=20261020-favorites1"></script>
+<script src="wishes-config.js?v=20261020-chat1"></script>
+<script src="wishes-session.js?v=20261020-chat1"></script>
+<script src="wishes-api.js?v=20261020-chat1"></script>
+<script src="script.js?v=20261020-chat1"></script>
+<script src="music-player.js?v=20261020-chat1"></script>
+<script src="chat-api.js?v=20261020-chat1"></script>
+<script src="chat.js?v=20261020-chat1"></script>
 </body>
 </html>
