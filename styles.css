@@ -2175,3 +2175,32 @@ button { -webkit-tap-highlight-color: transparent; }
   .paper-wrap { transform: none !important; }
   .plate:hover, .note-card:hover, .wish-note:hover { transform: rotate(var(--rot, var(--r, var(--nr, 0deg)))) translateY(0); }
 }
+
+/* Keep touch scrolling and page turns inexpensive on mobile WebKit. */
+@media (hover: none) and (pointer: coarse) {
+  .grain, .paper-shadow { display: none; }
+  .backdrop::before, .paper-layer--main::after { mix-blend-mode: normal; }
+  .paper-layer--main::after {
+    background-image: linear-gradient(180deg, rgba(120, 90, 50, .1), transparent 9%, transparent 91%, rgba(120, 90, 50, .13));
+    background-size: 100% 100%;
+  }
+  .paper-layer, .bg-branch, .bg-dandelion, .petal-float { filter: none; }
+  .paper-wrap { transform-style: flat; }
+  .book { perspective: none; }
+  .page {
+    transform: none !important;
+    will-change: auto;
+    transition: opacity .22s ease, visibility 0s linear .22s;
+  }
+  .page.is-active { transition: opacity .22s ease, visibility 0s; }
+  .page.enter-from-right, .page.enter-from-left { transition: none; }
+  .page.leave-left, .page.leave-right {
+    transition: opacity .18s ease, visibility 0s linear .22s;
+  }
+  .is-active .reveal { animation: none; }
+  .nav {
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    background: #c6b99b;
+  }
+}

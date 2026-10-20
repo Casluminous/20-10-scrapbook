@@ -5,6 +5,7 @@
   const $$ = (sel, root = document) => Array.from(root.querySelectorAll(sel));
   const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   const finePointer = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+  const lightEffects = window.matchMedia('(hover: none) and (pointer: coarse)').matches;
 
   const pages = $$('.page');
   const total = pages.length;
@@ -117,6 +118,12 @@
       to.classList.remove('enter-from-right', 'enter-from-left');
       from.classList.remove('is-active');
       from.classList.add(dir > 0 ? 'leave-left' : 'leave-right');
+      window.setTimeout(() => {
+        from.classList.remove('leave-left', 'leave-right');
+        from.style.zIndex = '';
+        to.style.zIndex = '';
+        busy = false;
+      }, lightEffects ? 300 : 960);
     });
 
     index = next;
@@ -124,12 +131,6 @@
     announce();
     syncInert();
     setHash(index);
-
-    window.setTimeout(() => {
-      from.style.zIndex = '';
-      to.style.zIndex = '';
-      busy = false;
-    }, 960);
   }
 
   function init() {
@@ -271,6 +272,7 @@
 
   function seedPetals(count = 11) {
     if (prefersReduced) return;
+    if (lightEffects) count = Math.min(count, 3);
     for (let i = 0; i < count; i += 1) {
       const petal = document.createElement('span');
       petal.className = 'petal-float';
@@ -288,6 +290,7 @@
 
   function burstAt(x, y, count = 24) {
     if (prefersReduced) return;
+    if (lightEffects) count = Math.min(count, 8);
     for (let i = 0; i < count; i += 1) {
       const piece = document.createElement('span');
       piece.className = 'confetti';
