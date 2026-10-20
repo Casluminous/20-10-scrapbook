@@ -2188,15 +2188,19 @@ button { -webkit-tap-highlight-color: transparent; }
   .paper-wrap { transform-style: flat; }
   .book { perspective: none; }
   .page {
-    transform: none !important;
+    transform: none;
     will-change: auto;
-    transition: opacity .22s ease, visibility 0s linear .22s;
+    transition: opacity .22s ease, transform .26s var(--ease-page), visibility 0s linear .26s;
   }
-  .page.is-active { transition: opacity .22s ease, visibility 0s; }
+  .page.is-active { transition: opacity .22s ease, transform .26s var(--ease-page), visibility 0s; }
   .page.enter-from-right, .page.enter-from-left { transition: none; }
+  .page.enter-from-right { transform: translateX(24px); }
+  .page.enter-from-left { transform: translateX(-24px); }
   .page.leave-left, .page.leave-right {
-    transition: opacity .18s ease, visibility 0s linear .22s;
+    transition: opacity .2s ease, transform .26s var(--ease-page), visibility 0s linear .26s;
   }
+  .page.leave-left { transform: translateX(-18px); }
+  .page.leave-right { transform: translateX(18px); }
   .is-active .reveal { animation: none; }
   .nav {
     backdrop-filter: none;
