@@ -10,3 +10,7 @@
 - Đã kiểm tra: WebKit iPhone, hai chiều CSS, 7 trang, chat/nhạc và reduced motion; desktop giữ hiệu ứng cũ.
 - Đang dở: chưa thử trên iPhone thật. Tiếp theo: người dùng thử Safari.
 - Quyết định: chỉ sửa CSS thiết bị cảm ứng, đổi phiên bản stylesheet tránh cache.
+
+## 2026-10-20 — chỉnh tốc độ
+- Đã làm: theo yêu cầu người dùng, tăng transition điện thoại lên 450 ms, khóa chuyển trang 500 ms; đổi cache CSS/JS.
+- Đã kiểm tra: WebKit iPhone qua 7 trang, reduced motion, chat/nhạc; desktop giữ nguyên. Chưa thử máy thật; tiếp theo người dùng thử Safari.

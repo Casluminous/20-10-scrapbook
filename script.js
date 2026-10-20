@@ -123,7 +123,7 @@
         from.style.zIndex = '';
         to.style.zIndex = '';
         busy = false;
-      }, lightEffects ? 300 : 960);
+      }, lightEffects ? 500 : 960);
     });
 
     index = next;

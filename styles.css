@@ -2190,14 +2190,14 @@ button { -webkit-tap-highlight-color: transparent; }
   .page {
     transform: none;
     will-change: auto;
-    transition: opacity .22s ease, transform .26s var(--ease-page), visibility 0s linear .26s;
+    transition: opacity .4s ease, transform .45s var(--ease-page), visibility 0s linear .45s;
   }
-  .page.is-active { transition: opacity .22s ease, transform .26s var(--ease-page), visibility 0s; }
+  .page.is-active { transition: opacity .4s ease, transform .45s var(--ease-page), visibility 0s; }
   .page.enter-from-right, .page.enter-from-left { transition: none; }
   .page.enter-from-right { transform: translateX(24px); }
   .page.enter-from-left { transform: translateX(-24px); }
   .page.leave-left, .page.leave-right {
-    transition: opacity .2s ease, transform .26s var(--ease-page), visibility 0s linear .26s;
+    transition: opacity .4s ease, transform .45s var(--ease-page), visibility 0s linear .45s;
   }
   .page.leave-left { transform: translateX(-18px); }
   .page.leave-right { transform: translateX(18px); }
