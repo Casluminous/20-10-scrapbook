@@ -64,6 +64,21 @@
       };
     },
 
+    async track(search, page = 0, pageSize = 9) {
+      const term = search.trim();
+      if (!term || term.length > 140) throw new Error('Nhập từ hoặc cụm từ từ 1 đến 140 ký tự.');
+      const query = new URLSearchParams({
+        select: fields, deleted_at: 'is.null',
+        text: `imatch.${term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}`,
+        order: 'created_at.desc,id.desc', limit: String(pageSize), offset: String(page * pageSize)
+      });
+      const result = await window.WishSessions.request(`/rest/v1/wishes?${query}`, {
+        includeCount: true, headers: { Prefer: 'count=exact' }
+      });
+      if (!Number.isSafeInteger(result.count)) throw new Error('Chưa lấy được tổng số lời chúc.');
+      return { notes: result.data, count: result.count, hasOlder: (page + 1) * pageSize < result.count };
+    },
+
     async save(note) {
       try {
         const rows = await request(`select=${fields}`, {

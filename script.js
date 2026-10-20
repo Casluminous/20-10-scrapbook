@@ -333,6 +333,8 @@
   const wishRefresh = $('#wishRefresh');
   const wishPageInfo = $('#wishPageInfo');
   const wishWallStatus = $('#wishWallStatus');
+  const wishSearchTerm = $('#wishSearchTerm');
+  const wishSearchSummary = $('#wishSearchSummary');
   const wishSubmit = wishForm?.querySelector('[type="submit"]');
 
   const POSITIONS = [
@@ -349,6 +351,7 @@
 
   let userNotes = [];
   let wallPage = 0;
+  let wallTerm = '';
   let wallHasOlder = false;
   let wallLoading = false;
   let wallRequest = 0;
@@ -364,6 +367,9 @@
     wishNewer.disabled = wallLoading || wallPage === 0;
     wishOlder.disabled = wallLoading || !wallHasOlder;
     wishRefresh.disabled = wallLoading;
+    $('#wishSearchButton').disabled = wallLoading;
+    $('#wishSearchClear').disabled = wallLoading;
+    $('#wishSearchClear').hidden = !wallTerm;
     wishPageInfo.textContent = `Trang ${wallPage + 1}`;
     wishWall.setAttribute('aria-busy', String(wallLoading));
   }
@@ -372,10 +378,15 @@
     const requestId = ++wallRequest;
     wallLoading = true;
     wishWallStatus.textContent = 'Đang tải lời nhắn…';
+    wishSearchSummary.hidden = !wallTerm;
+    if (wallTerm) wishSearchSummary.textContent = 'Đang đếm lời chúc phù hợp…';
     updateWallControls();
     try {
-      const result = await window.WishesAPI.list(page, POSITIONS.length);
+      const result = wallTerm
+        ? await window.WishesAPI.track(wallTerm, page, POSITIONS.length)
+        : await window.WishesAPI.list(page, POSITIONS.length);
       if (requestId !== wallRequest) return;
+      if (wallTerm && page > 0 && page * POSITIONS.length >= result.count) return loadWall(0, isFresh);
       // A previously full page can become empty after owner moderation.
       if (!result.notes.length && page > 0) return loadWall(page - 1);
       userNotes = result.notes;
@@ -383,9 +394,10 @@
       wallHasOlder = result.hasOlder;
       favoriteReady = false;
       renderWall(isFresh);
+      if (wallTerm) wishSearchSummary.textContent = `${result.count.toLocaleString('vi-VN')} lời chúc có chứa “${wallTerm}”.`;
       wishWallStatus.textContent = userNotes.length
         ? 'Lời nhắn chung của mọi người. Nhấn Làm mới để xem lời vừa gửi.'
-        : 'Chưa có lời nhắn nào. Bạn ghim lời đầu tiên nhé.';
+        : wallTerm ? 'Thử một từ khác hoặc bấm Xem tất cả.' : 'Chưa có lời nhắn nào. Bạn ghim lời đầu tiên nhé.';
       try {
         const ids = await window.WishesAPI.liked(result.notes.map(note => note.id));
         if (requestId !== wallRequest) return;
@@ -397,6 +409,8 @@
       }
     } catch (error) {
       if (requestId !== wallRequest) return;
+      if (wallTerm && error.status === 416 && page > 0) return loadWall(0, isFresh);
+      if (wallTerm) wishSearchSummary.textContent = 'Chưa đếm được lời chúc. Nội dung tìm vẫn còn; nhấn Làm mới để thử lại.';
       wishWallStatus.textContent = 'Chưa tải được lời nhắn. Nhấn Làm mới để thử lại.';
     } finally {
       if (requestId === wallRequest) {
@@ -415,7 +429,7 @@
     if (!all.length) {
       const empty = document.createElement('p');
       empty.className = 'wish-wall-empty hand';
-      empty.textContent = 'Một góc giấy còn trống.\nGhim lời đầu tiên nhé.';
+      empty.textContent = wallTerm ? 'Chưa có lời chúc phù hợp.' : 'Một góc giấy còn trống.\nGhim lời đầu tiên nhé.';
       wishWall.appendChild(empty);
     }
 
@@ -440,6 +454,19 @@
       const text = document.createElement('p');
       text.className = 'wish-note__text';
       text.textContent = note.text;
+      if (wallTerm) {
+        text.replaceChildren();
+        const pattern = new RegExp(wallTerm.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'giu');
+        let end = 0;
+        for (const match of note.text.matchAll(pattern)) {
+          text.append(document.createTextNode(note.text.slice(end, match.index)));
+          const mark = document.createElement('mark');
+          mark.textContent = match[0];
+          text.append(mark);
+          end = match.index + match[0].length;
+        }
+        text.append(document.createTextNode(note.text.slice(end)));
+      }
       text.title = note.text;
       text.tabIndex = 0;
 
@@ -543,6 +570,22 @@
     wishNewer.addEventListener('click', () => loadWall(wallPage - 1));
     wishOlder.addEventListener('click', () => loadWall(wallPage + 1));
     wishRefresh.addEventListener('click', () => loadWall(0));
+    function searchWall(term) {
+      if (wallLoading) return;
+      wallTerm = term.trim();
+      wallPage = 0;
+      wallHasOlder = false;
+      wishWall.replaceChildren();
+      loadWall(0);
+    }
+    $('#wishSearchForm').addEventListener('submit', event => {
+      event.preventDefault();
+      searchWall(wishSearchTerm.value);
+    });
+    $('#wishSearchClear').addEventListener('click', () => {
+      wishSearchTerm.value = '';
+      searchWall('');
+    });
 
     wishText.addEventListener('input', () => {
       updateCount();
@@ -598,6 +641,9 @@
         ++wallRequest;
         wallLoading = false;
         wallPage = 0;
+        wallTerm = '';
+        wishSearchTerm.value = '';
+        wishSearchSummary.hidden = true;
         wallHasOlder = true;
         userNotes = [saved, ...userNotes.filter(note => note.id !== saved.id)].slice(0, POSITIONS.length);
         renderWall(true);

@@ -8,7 +8,7 @@
   async function request(path, options = {}) {
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), 12000);
-    const { token, ...rest } = options;
+    const { token, includeCount, ...rest } = options;
     try {
       const response = await fetch(`${config.url}${path}`, {
         ...rest,
@@ -27,6 +27,10 @@
         error.status = response.status;
         error.code = data?.code || data?.error_code;
         throw error;
+      }
+      if (includeCount) {
+        const total = response.headers.get('content-range')?.match(/\/(\d+)$/);
+        return { data, count: total ? Number(total[1]) : null };
       }
       return data;
     } finally {

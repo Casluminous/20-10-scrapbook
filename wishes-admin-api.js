@@ -51,6 +51,21 @@
       return { notes, hasOlder: rows.length > 20 };
     },
     counts: (kind = 'wishes') => request(`/rest/v1/rpc/${kind === 'chat' ? 'admin_chat_counts' : 'admin_wish_counts'}`, { method: 'POST', body: '{}' }),
+    async track(search, page = 0) {
+      const term = search.trim();
+      if (!term || term.length > 140) throw new Error('Nhập từ hoặc cụm từ từ 1 đến 140 ký tự.');
+      const literal = term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      const query = new URLSearchParams({
+        select: 'id,name,text,created_at', deleted_at: 'is.null',
+        text: `imatch.${literal}`, order: 'created_at.desc,id.desc',
+        limit: '20', offset: String(page * 20)
+      });
+      const result = await request(`/rest/v1/wishes?${query}`, {
+        includeCount: true, headers: { Prefer: 'count=exact' }
+      });
+      if (!Number.isSafeInteger(result.count)) throw new Error('Chưa lấy được tổng số lời chúc.');
+      return { notes: result.data, count: result.count };
+    },
     async moderate(id, trash, kind = 'wishes') {
       const query = new URLSearchParams({ id: `eq.${id}`, select: 'id,deleted_at' });
       const rows = await request(`/rest/v1/${kind === 'chat' ? 'chat_messages' : 'wishes'}?${query}`, {

@@ -19,3 +19,9 @@
 - Đã làm: ghim lời “Mẫu” ID 1aa06aa9-8fd6-49f5-b649-d2de4f61c913 ở đầu trang đầu tường lời chúc qua cấu hình pinnedWishId; giữ ngày gửi và nội dung gốc.
 - Đã kiểm tra: đọc dữ liệu thật xác nhận đúng lời; phân trang không trùng/sót với pin hiện, pin bị xóa, tường rỗng. Quyết định: ghim một lời theo yêu cầu, không thêm chức năng quản trị mới.
 - Đang dở: không. Tiếp theo: người dùng xem tường lời chúc sau xuất bản.
+
+## 2026-10-20 — theo dõi từ trong lời chúc
+- Đã làm: công cụ admin “Theo dõi từ” và tìm kiếm công khai ở trang 5; tổng chính xác toàn bộ kết quả, tô sáng, phân trang, tìm chuỗi nguyên văn không phân biệt hoa/thường và giữ dấu. Chỉ nội dung đang hiển thị, mỗi lời tính một lần.
+- Đã kiểm tra: Edge và WebKit iPhone; tổng nhiều trang, ký tự đặc biệt, rỗng, lỗi mạng/header count, khôi phục khi trang không còn, XSS; admin xóa/khôi phục và đăng xuất khi tải; public yêu thích, gửi lời mới và khôi phục lời ghim. Đọc thật Supabase xác nhận bộ lọc và Content-Range/count, không viết dữ liệu thử lên máy chủ.
+- Quyết định: dùng PostgREST imatch với biểu thức đã escape và count=exact; không đổi schema/quyền. Public 9 kết quả/trang, admin 20; không tính thùng rác hay tên người nhận.
+- Đang dở: chưa thử iPhone thật. Tiếp theo: người dùng mở bản đã xuất bản để sử dụng.

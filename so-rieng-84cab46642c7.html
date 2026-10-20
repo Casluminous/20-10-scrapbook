@@ -10,7 +10,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500&family=Lora:ital,wght@0,400;0,500;1,400&family=Patrick+Hand&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="wishes-admin.css?v=20261020-chat1">
+  <link rel="stylesheet" href="wishes-admin.css?v=20261020-track1">
 </head>
 <body>
   <a class="skip-link" href="#main">Đến nội dung</a>
@@ -55,6 +55,16 @@
           <div class="account"><span id="accountEmail"></span><button class="text-button" id="logoutButton" type="button">Đăng xuất</button></div>
         </div>
         <div class="resource-tabs" role="group" aria-label="Loại nội dung quản lý"><button type="button" id="wishesKind" aria-pressed="true">Lời chúc</button><button type="button" id="chatKind" aria-pressed="false">Trò chuyện</button></div>
+        <details id="wordTracker" class="word-tracker">
+          <summary>Theo dõi từ <span>TRANG 5</span></summary>
+          <p class="tracker-help">Tìm trong nội dung mọi lời chúc đang trên tường. Không phân biệt hoa/thường, giữ nguyên dấu; mỗi lời chúc được tính một lần dù lặp từ nhiều lần. Không tính thùng rác.</p>
+          <form id="trackForm" class="search-form">
+            <div class="search-field"><label for="trackTerm">Từ hoặc cụm từ cần theo dõi</label><input id="trackTerm" type="search" maxlength="140" required placeholder="Ví dụ: yêu thương, @Lan…"><button id="trackButton" class="button" type="submit">Theo dõi</button></div>
+          </form>
+          <p id="trackStatus" class="dashboard-status" role="status">Nhập nội dung rồi bấm Theo dõi để xem tổng số và danh sách.</p>
+          <div id="trackResults" class="letters" aria-label="Lời chúc chứa từ đang theo dõi"></div>
+          <nav id="trackPagination" class="pagination" aria-label="Trang kết quả theo dõi" hidden><button id="trackPrevious" class="button" type="button">← Trang trước</button><span id="trackPage"></span><button id="trackNext" class="button" type="button">Trang sau →</button></nav>
+        </details>
         <dl class="totals" aria-label="Tổng quan nội dung">
           <div><dt id="visibleCountLabel">Đang trên tường</dt><dd id="visibleCount">—</dd></div>
           <div id="favoriteTotal"><dt>Lượt yêu thích</dt><dd id="favoriteCount">—</dd></div>
@@ -80,8 +90,9 @@
     </div>
   </main>
   <script src="wishes-config.js?v=20261020-chat1"></script>
-  <script src="wishes-session.js?v=20261020-chat1"></script>
-  <script src="wishes-admin-api.js?v=20261020-chat1"></script>
-  <script src="wishes-admin.js?v=20261020-chat1"></script>
+  <script src="wishes-session.js?v=20261020-track1"></script>
+  <script src="wishes-admin-api.js?v=20261020-track1"></script>
+  <script src="wishes-admin.js?v=20261020-track1"></script>
+  <script src="wishes-tracker.js?v=20261020-track1"></script>
 </body>
 </html>

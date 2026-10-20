@@ -95,6 +95,7 @@
           await api.moderate(note.id, !trash, kind);
           status(trash ? 'Đã khôi phục nội dung lên trang chung.' : 'Đã đưa vào thùng rác. Bạn có thể khôi phục bất cứ lúc nào.');
           await load(page, true);
+          if (kind === 'wishes') window.dispatchEvent(new Event('adminwisheschange'));
         } catch (_) { status('Chưa xác nhận được thay đổi. Hãy làm mới để kiểm tra và thử lại.', true); }
         finally { busy = false; controls(); }
       });
@@ -152,6 +153,7 @@
 
   function changeKind(value) {
     kind = value;
+    window.dispatchEvent(new CustomEvent('adminstatechange', { detail: { active, kind } }));
     const chat = kind === 'chat';
     $('#wishesKind').setAttribute('aria-pressed', String(!chat));
     $('#chatKind').setAttribute('aria-pressed', String(chat));
@@ -187,6 +189,7 @@
       $('#accountEmail').textContent = user.email;
       $('#loginPanel').hidden = true;
       $('#dashboard').hidden = false;
+      window.dispatchEvent(new CustomEvent('adminstatechange', { detail: { active, kind } }));
       $('#dashboardTitle').tabIndex = -1;
       $('#dashboardTitle').focus();
       await load();
@@ -202,6 +205,7 @@
   $('#logoutButton').addEventListener('click', async () => {
     ++generation;
     active = false;
+    window.dispatchEvent(new CustomEvent('adminstatechange', { detail: { active, kind } }));
     $('#dashboard').hidden = true;
     list.replaceChildren();
     $('#accountEmail').textContent = '';

@@ -10,7 +10,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@500;700;800;900&family=IBM+Plex+Mono:wght@400;500&family=Lora:ital,wght@0,400;0,500;1,400;1,500&family=Patrick+Hand&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="styles.css?v=20261020-slide2">
+<link rel="stylesheet" href="styles.css?v=20261020-track2">
 </head>
 <body>
 
@@ -628,6 +628,16 @@
             </form>
 
             <div class="wish-wall-wrap no-advance reveal" style="--d:.3s">
+              <form id="wishSearchForm" class="wish-search no-advance" role="search">
+                <label for="wishSearchTerm">Tìm trong lời chúc</label>
+                <div class="wish-search__row">
+                  <input id="wishSearchTerm" type="search" maxlength="140" placeholder="Từ, cụm từ hoặc @tên…" aria-describedby="wishSearchHelp">
+                  <button id="wishSearchButton" class="wish-wall-controls__button" type="submit">Tìm</button>
+                  <button id="wishSearchClear" class="wish-wall-controls__button" type="button" hidden>Xem tất cả</button>
+                </div>
+                <p id="wishSearchHelp">Không phân biệt hoa/thường, giữ nguyên dấu. Mỗi lời chúc tính một lần.</p>
+                <p id="wishSearchSummary" role="status" hidden></p>
+              </form>
               <div class="wish-wall" id="wishWall" aria-label="Tường lời chúc"></div>
               <p class="wish-wall__caption hand">những lời chưa kịp nói, được ghim lại đây. <span class="wall-more">trượt ngang →</span></p>
               <div class="wish-wall-controls no-advance" aria-label="Xem lời nhắn">
@@ -786,9 +796,9 @@
 <audio id="bgMusic" src="audio/nhac-nen.m4a" loop preload="metadata"></audio>
 
 <script src="wishes-config.js?v=20261020-pin1"></script>
-<script src="wishes-session.js?v=20261020-chat1"></script>
-<script src="wishes-api.js?v=20261020-pin1"></script>
-<script src="script.js?v=20261020-slide2"></script>
+<script src="wishes-session.js?v=20261020-track2"></script>
+<script src="wishes-api.js?v=20261020-track2"></script>
+<script src="script.js?v=20261020-track2"></script>
 <script src="music-player.js?v=20261020-chat1"></script>
 <script src="chat-api.js?v=20261020-chat1"></script>
 <script src="chat.js?v=20261020-chat1"></script>

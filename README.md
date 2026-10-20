@@ -68,6 +68,10 @@ Dùng lại phiên khách ẩn danh của tính năng yêu thích, không yêu c
 
 Trong trang quản trị, chọn Trò chuyện để tìm, đưa tin vào thùng rác hoặc khôi phục. Khách không được sửa/xóa tin, đọc mã tác giả hoặc giả mạo thời gian qua API. UID quản trị hiện có tiếp tục được sử dụng.
 
+Trong mục Lời chúc của trang quản trị, mở “Theo dõi từ” để đếm số lời chúc có chứa từ/cụm từ và đọc kết quả (20 lời mỗi trang). Chỉ tìm nội dung lời chúc đang trên tường, không tính tên người nhận hay thùng rác. Không phân biệt hoa/thường, giữ dấu, tìm chuỗi con theo đúng ký tự; mỗi lời tính một lần. Tổng số được đếm tại máy chủ trên toàn bộ kết quả bằng `count=exact`, không phụ thuộc trang đang xem. Sau khi xóa/khôi phục, kết quả theo dõi được làm mới. Công cụ dùng phiên quản trị hiện có, không thêm quyền hay thay đổi cơ sở dữ liệu.
+
+Trang 5 cũng có “Tìm trong lời chúc” cho mọi người sử dụng không cần đăng nhập, cùng quy tắc đếm/tìm và 9 kết quả mỗi trang. Nội dung khớp được tô sáng; bấm “Xem tất cả” để trở lại tường có lời ghim đầu. Khi gửi một lời chúc mới thành công, bộ lọc được xóa để xem lại tường chung. Không tạo thêm quyền truy cập hay hiển thị nội dung đã đưa vào thùng rác.
+
 `supabase/20261020-chat.sql` đã tạo bảng/RPC và phân quyền. `supabase/verify-chat.sql` kiểm tra gửi tin, xác thực, giới hạn, chống trùng, mã tác giả và thùng rác bằng giao dịch hoàn tác.
 
 `supabase/schema.sql` ghi lại cấu trúc và chính sách của bảng đã tạo, dùng cho dự án mới. Không chạy lại các lệnh tạo policy trên cùng dự án nếu policy đã tồn tại.
