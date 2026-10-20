@@ -14,3 +14,8 @@
 ## 2026-10-20 — chỉnh tốc độ
 - Đã làm: theo yêu cầu người dùng, tăng transition điện thoại lên 450 ms, khóa chuyển trang 500 ms; đổi cache CSS/JS.
 - Đã kiểm tra: WebKit iPhone qua 7 trang, reduced motion, chat/nhạc; desktop giữ nguyên. Chưa thử máy thật; tiếp theo người dùng thử Safari.
+
+## 2026-10-20 — ghim lời hướng dẫn
+- Đã làm: ghim lời “Mẫu” ID 1aa06aa9-8fd6-49f5-b649-d2de4f61c913 ở đầu trang đầu tường lời chúc qua cấu hình pinnedWishId; giữ ngày gửi và nội dung gốc.
+- Đã kiểm tra: đọc dữ liệu thật xác nhận đúng lời; phân trang không trùng/sót với pin hiện, pin bị xóa, tường rỗng. Quyết định: ghim một lời theo yêu cầu, không thêm chức năng quản trị mới.
+- Đang dở: không. Tiếp theo: người dùng xem tường lời chúc sau xuất bản.

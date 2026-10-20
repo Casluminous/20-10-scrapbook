@@ -46,14 +46,22 @@
     },
 
     async list(page = 0, pageSize = 9) {
+      const pinned = config.pinnedWishId ? await request(new URLSearchParams({
+        select: fields, id: `eq.${config.pinnedWishId}`, limit: '1'
+      })) : [];
+      const size = pageSize - (page === 0 ? pinned.length : 0);
       const query = new URLSearchParams({
         select: fields,
         order: 'created_at.desc,id.desc',
-        limit: String(pageSize + 1),
-        offset: String(page * pageSize)
+        limit: String(size + 1),
+        offset: String(Math.max(0, page * pageSize - pinned.length))
       });
+      if (pinned.length) query.set('id', `neq.${config.pinnedWishId}`);
       const rows = await request(query);
-      return { notes: rows.slice(0, pageSize), hasOlder: rows.length > pageSize };
+      return {
+        notes: [...(page === 0 ? pinned : []), ...rows.slice(0, size)],
+        hasOlder: rows.length > size
+      };
     },
 
     async save(note) {
